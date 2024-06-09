@@ -1,30 +1,10 @@
 import gleam/io
-import gleam/result
-import internal/parser
-import internal/tokenizer
-
-pub type Error {
-  TokenizingError(tokenizer.TokenizationError)
-  ParsingError(parser.ParseError)
-}
-
-fn str_to_token(input: String) -> Result(List(tokenizer.Token), Error) {
-  tokenizer.tokenize(input) |> result.map_error(TokenizingError)
-}
-
-fn tokens_to_json(
-  tokens: List(tokenizer.Token),
-) -> Result(parser.JsonValue, Error) {
-  parser.parse(tokens) |> result.map_error(ParsingError)
-}
-
-pub fn parse_json(input: String) -> Result(parser.JsonValue, Error) {
-  str_to_token(input)
-  |> result.try(tokens_to_json)
-}
+import jackson/internal/parser
 
 pub fn main() {
-  "{\"hello\": \"world\", \"array\": [1,2,4.5,null,true, {\"one\":\"value-1\", \"two\": [34, \"string value\"]}]}"
-  |> parse_json
+  "{\"hello\": [1,2,3,4,4.67,true, false, null, {\"henlo\": \"noway \\u1234 \"}]}"
+  |> parser.parse
   |> io.debug
+  // int.parse("+23")
+  // |> io.debug
 }
