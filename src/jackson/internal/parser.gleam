@@ -5,6 +5,7 @@ import gleam/io
 import gleam/regex
 import gleam/result
 import gleam/string
+import jackson/internal/escaping
 import jackson/internal/json.{
   type Json, Array, Bool, Float, Integer, Null, Object, String,
 }
@@ -190,7 +191,7 @@ fn parse_exponent(first: String, second: String) -> Result(Json, Nil) {
 fn parse_string(input: String) -> Result(#(Json, String), String) {
   let assert Ok(re) =
     regex.from_string(
-      "^\"([^\\\\\"]|(\\\\(\"|\\\\|\\/|b|f|n|r|t|(u[0-9a-fA-F]{4}))))*?\"",
+      "^\"([^\\\\\"\\\\u0000-\\\\u001F\\\\u007F-\\\\u009F\\\\u061C\\\\u200E\\\\u200F\\\\u202A-\\\\u202E\\\\u2066-\\\\u2069]|(\\\\(\"|\\\\|\\/|b|f|n|r|t|(u[0-9a-fA-F]{4}))))*?\"",
     )
   let res = regex.scan(re, input)
 
@@ -202,7 +203,7 @@ fn parse_string(input: String) -> Result(#(Json, String), String) {
       let rest =
         string.slice(input, string.length(match.content), string.length(input))
 
-      Ok(#(String(inner), rest))
+      Ok(#(String(escaping.descape_string(inner)), rest))
     }
   }
 }

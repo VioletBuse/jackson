@@ -2,6 +2,7 @@ import gleam/float
 import gleam/int
 import gleam/list
 import gleam/string_builder.{type StringBuilder}
+import jackson/internal/escaping
 import jackson/internal/json.{type Json}
 
 pub fn to_string_builder(json: Json) -> StringBuilder {
@@ -12,7 +13,7 @@ pub fn to_string_builder(json: Json) -> StringBuilder {
     json.Bool(True) -> string_builder.from_string("true")
     json.Bool(False) -> string_builder.from_string("false")
     json.String(inner) -> {
-      string_builder.from_string(inner)
+      string_builder.from_string(escaping.escape_string(inner))
       |> string_builder.prepend("\"")
       |> string_builder.append("\"")
     }

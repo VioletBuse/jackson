@@ -5,7 +5,7 @@ import jackson/internal/encoder
 import jackson/internal/parser
 
 pub fn main() {
-  "{\"hello\": [1,2,3,4,4.67,true, false, null, {\"henlo\": \"noway \\n \\u1234 \"}]}"
+  "{\"hello\": [1,2,3,4,4.67,true, false, null, {\"henlo\": \"noway \n \"}]}"
   |> parser.parse
   |> result.map(encoder.to_string_builder)
   |> result.map(string_builder.to_string)
