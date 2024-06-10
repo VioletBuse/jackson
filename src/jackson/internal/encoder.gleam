@@ -5,6 +5,11 @@ import gleam/string_builder.{type StringBuilder}
 import jackson/internal/escaping
 import jackson/internal/json.{type Json}
 
+pub fn to_string(json: Json) -> String {
+  to_string_builder(json)
+  |> string_builder.to_string
+}
+
 pub fn to_string_builder(json: Json) -> StringBuilder {
   case json {
     json.Null -> string_builder.from_string("null")

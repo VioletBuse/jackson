@@ -6,12 +6,34 @@
 ```sh
 gleam add jackson
 ```
+
+## Decoding a json value
+
+```gleam
+import jackson
+import gleam/result
+import gleam/dynamic
+
+pub fn main() {
+  fetch_value()
+  |> jackson.parse
+  |> result.map(
+    jackson.decode(dynamic.decode2(Constructor, field("id", dynamic.int), field("name", dynamic.string))
+  )
+}
+```
+
+## Encoding a json value
+
 ```gleam
 import jackson
 
-pub fn main() {
-  // TODO: An example of the project in use
-}
+jackson.object(
+  #("id", jackson.int(2)),
+  #("name", jackson.string("michael"))
+)
+|> jackson.to_string()
+// {"id": 2, "name": "michael"}
 ```
 
 Further documentation can be found at <https://hexdocs.pm/jackson>.

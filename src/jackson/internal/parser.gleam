@@ -1,7 +1,6 @@
 import gleam/bool
 import gleam/float
 import gleam/int
-import gleam/io
 import gleam/regex
 import gleam/result
 import gleam/string
@@ -26,9 +25,6 @@ fn unexpected_character(string: String) {
 }
 
 fn parse_loop(input: String) -> Result(#(Json, String), String) {
-  io.debug("parse_loop_call")
-  io.debug(input)
-
   let input = string.trim_left(input)
 
   use _ <- result.try_recover(parse_array(input))
@@ -74,7 +70,7 @@ fn parse_object_entry(
 
       case rest {
         "," <> rest -> {
-          use #(remaining, rest) <- result.try(parse_object_entry(rest))
+          use #(_remaining, rest) <- result.try(parse_object_entry(rest))
           Ok(#([#(key, value)], rest))
         }
         "}" <> rest -> Ok(#([#(key, value)], rest))
@@ -97,8 +93,6 @@ fn parse_array(input: String) -> Result(#(Json, String), String) {
 fn parse_array_value(input: String) -> Result(#(Json, String), String) {
   use #(element, rest) <- result.try(parse_loop(input))
   let rest = string.trim_left(rest)
-
-  io.debug(#("decoded_array_value", element))
 
   case rest {
     "," <> rest ->
@@ -130,8 +124,6 @@ fn parse_number(input: String) -> Result(#(Json, String), String) {
   let assert Ok(re) =
     regex.from_string("^-?[0-9]+(\\.[0-9]+)?((e|E)(\\+|-)?[0-9]+)?")
   let res = regex.scan(re, input)
-
-  io.debug(res)
 
   case res, input {
     _, "" -> Error("Unexpected end of input")
