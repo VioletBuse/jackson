@@ -1,9 +1,31 @@
+import gleam/dynamic.{type Dynamic}
 import gleam/float
 import gleam/int
 import gleam/list
+import gleam/result
 import gleam/string_builder.{type StringBuilder}
 import jackson/internal/escaping
 import jackson/internal/json.{type Json}
+
+pub fn dynamic_to_json(dyn: Dynamic) -> Result(Json, dynamic.DecodeErrors) {
+  dynamic.any([
+    fn(dyn: Dynamic) { dynamic.int(dyn) |> result.map(json.Integer) },
+    fn(dyn: Dynamic) { dynamic.float(dyn) |> result.map(json.Float) },
+    fn(dyn: Dynamic) { dynamic.string(dyn) |> result.map(json.String) },
+    fn(dyn: Dynamic) { dynamic.bool(dyn) |> result.map(json.Bool) },
+    fn(dyn: Dynamic) {
+      dynamic.optional(fn(_) { Error([]) })(dyn)
+      |> result.map(fn(_) { json.Null })
+    },
+    fn(dyn: Dynamic) {
+      dynamic.list(dynamic.tuple2(dynamic.string, dynamic_to_json))(dyn)
+      |> result.map(json.Object)
+    },
+    fn(dyn: Dynamic) {
+      dynamic.list(dynamic_to_json)(dyn) |> result.map(json.Array)
+    },
+  ])(dyn)
+}
 
 pub fn to_string(json: Json) -> String {
   to_string_builder(json)

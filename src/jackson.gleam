@@ -54,6 +54,35 @@ pub fn decode(
   decoder.decode(json, decoder)
 }
 
+/// take a dynamic value, created either manually or from the `jackson.decode` function,
+/// and turn it back into json. This is how the following values are converted:
+///
+///   - Int -> json.Int(inner)
+///   - Float -> json.Float(inner)
+///   - String -> json.String(inner)
+///   - Bool -> json.Bool(inner)
+///   - Nil -> json.Null
+///   - List(#(String, Json)) -> json.Object(entries)
+///   - List(Json) -> json.Array(entries)
+///
+/// A slight problem is that gleam's `dynamic.tuple2` is unable to differentiate between
+/// a tuple and an array of length two. Additionally, if your json contains an array, whose
+/// children are all arrays of length two where the value at index 0 is a string,
+/// (such as `[["a", 1], ["b", 2], ["c", 3], ["d", 4]]`) then this function will re-encode it
+/// as though it were the following object:
+///
+/// ```json
+/// {
+///   "a": 1,
+///   "b": 2,
+///   "c": 3,
+///   "d": 4
+/// }
+/// ```
+pub fn dynamic_to_json(dyn: Dynamic) -> Result(Json, DecodeErrors) {
+  encoder.dynamic_to_json(dyn)
+}
+
 /// encode json to string (uses `jackson.to_string_builder` under the hood)
 pub fn to_string(json: Json) -> String {
   encoder.to_string(json)
